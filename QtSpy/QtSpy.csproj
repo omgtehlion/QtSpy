@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{F6902B97-DA31-4A98-9888-D8134255ACBC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>QtSpy</RootNamespace>
+    <AssemblyName>QtSpy</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>..\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Design" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Xml.Linq">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Aga.Controls\BitmapHelper.cs" />
+    <Compile Include="Aga.Controls\GifDecoder.cs" />
+    <Compile Include="Aga.Controls\NumericTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\PerformanceAnalyzer.cs" />
+    <Compile Include="Aga.Controls\Properties\Resources.Designer.cs" />
+    <Compile Include="Aga.Controls\ResourceHelper.cs" />
+    <Compile Include="Aga.Controls\StringCollectionEditor.cs" />
+    <Compile Include="Aga.Controls\TextHelper.cs" />
+    <Compile Include="Aga.Controls\Threading\AbortableThreadPool.cs" />
+    <Compile Include="Aga.Controls\Threading\WorkItem.cs" />
+    <Compile Include="Aga.Controls\Threading\WorkItemStatus.cs" />
+    <Compile Include="Aga.Controls\TimeCounter.cs" />
+    <Compile Include="Aga.Controls\Tree\AutoRowHeightLayout.cs" />
+    <Compile Include="Aga.Controls\Tree\ColumnCollection.cs" />
+    <Compile Include="Aga.Controls\Tree\DrawContext.cs" />
+    <Compile Include="Aga.Controls\Tree\DropNodeValidatingEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\DropPosition.cs" />
+    <Compile Include="Aga.Controls\Tree\EditorContext.cs" />
+    <Compile Include="Aga.Controls\Tree\Enums.cs" />
+    <Compile Include="Aga.Controls\Tree\FixedRowHeightLayout.cs" />
+    <Compile Include="Aga.Controls\Tree\IncrementalSearch.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\ClickColumnState.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\ColumnState.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\InputState.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\InputWithControl.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\InputWithShift.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\NormalInputState.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\ReorderColumnState.cs" />
+    <Compile Include="Aga.Controls\Tree\Input\ResizeColumnState.cs" />
+    <Compile Include="Aga.Controls\Tree\IRowLayout.cs" />
+    <Compile Include="Aga.Controls\Tree\IToolTipProvider.cs" />
+    <Compile Include="Aga.Controls\Tree\ITreeModel.cs" />
+    <Compile Include="Aga.Controls\Tree\ListModel.cs" />
+    <Compile Include="Aga.Controls\Tree\NativeMethods.cs" />
+    <Compile Include="Aga.Controls\Tree\Node.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControlInfo.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\BaseTextControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\BindableControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\DrawEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\EditableControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\EditEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\ExpandingIcon.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\InteractiveControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\LabelEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeCheckBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeControlsCollection.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeControlValueEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeDecimalTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeIcon.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeIntegerTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeNumericUpDown.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodePlusMinus.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeStateIcon.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\NodeControls\NodeTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\SortedTreeModel.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeColumn.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeColumnCollection.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeColumnEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeListAdapter.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeModel.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeModelBase.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeModelEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeNodeAdv.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeNodeAdvMouseEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreePath.cs" />
+    <Compile Include="Aga.Controls\Tree\TreePathEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.Designer.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.Draw.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.Editor.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.Input.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeViewAdv.Properties.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Aga.Controls\Tree\TreeViewAdvCancelEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeViewAdvEventArgs.cs" />
+    <Compile Include="Aga.Controls\Tree\TreeViewRowDrawEventArgs.cs" />
+    <Compile Include="Ext.cs" />
+    <Compile Include="UI\FormMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\FormMain.Designer.cs">
+      <DependentUpon>FormMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\MyNode.cs" />
+    <Compile Include="UI\MyTreeModel.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Aga.Controls\Properties\Resources.resx" />
+    <EmbeddedResource Include="Aga.Controls\Tree\TreeViewAdv.resx" />
+    <EmbeddedResource Include="UI\FormMain.resx">
+      <DependentUpon>FormMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Aga.Controls\Resources\loading_icon" />
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="QtObject.cs" />
+    <Compile Include="QtProcess.cs" />
+    <Compile Include="UI\UiTools.cs" />
+    <Compile Include="UI\WidgetAttributes.cs" />
+    <Compile Include="Winapi\Methods.cs" />
+    <Compile Include="Winapi\Winapi.cs" />
+    <Compile Include="Winapi\Window.cs" />
+    <Compile Include="Winapi\WindowBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bitmap1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\bitmap2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\cursor1.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Aga.Controls\Resources\check.bmp" />
+    <Content Include="Aga.Controls\Resources\DVSplit.cur" />
+    <Content Include="Aga.Controls\Resources\Folder.bmp" />
+    <Content Include="Aga.Controls\Resources\FolderClosed.bmp" />
+    <Content Include="Aga.Controls\Resources\Leaf.bmp" />
+    <Content Include="Aga.Controls\Resources\minus.bmp" />
+    <Content Include="Aga.Controls\Resources\plus.bmp" />
+    <Content Include="Aga.Controls\Resources\uncheck.bmp" />
+    <Content Include="Aga.Controls\Resources\unknown.bmp" />
+    <None Include="Resources\QWidget.png" />
+    <None Include="Resources\QToolButton.png" />
+    <None Include="Resources\QTabBar.png" />
+    <None Include="Resources\QComboBox.png" />
+    <None Include="Resources\QRadioButton.png" />
+    <None Include="Resources\QWebView.png" />
+    <None Include="Resources\QTextEdit.png" />
+    <None Include="Resources\QTableView.png" />
+    <None Include="Resources\QPushButton.png" />
+    <None Include="Resources\QLineEdit.png" />
+    <None Include="Resources\QLabel.png" />
+    <None Include="Resources\QFrame.png" />
+    <None Include="Resources\QCheckBox.png" />
+    <None Include="Resources\QAbstractItemView.png" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

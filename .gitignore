@@ -1,0 +1,10 @@
+*.user
+Debug/
+*.suo
+*.ncb
+*.sdf
+*.sdf
+*.opensdf
+ipch/
+Release/
+QtSpy/obj/

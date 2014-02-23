@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dumplib", "dumplib\dumplib.vcxproj", "{A888DBF4-4380-42C9-816D-57B0893A87B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QtSpy", "QtSpy\QtSpy.csproj", "{F6902B97-DA31-4A98-9888-D8134255ACBC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A888DBF4-4380-42C9-816D-57B0893A87B6} = {A888DBF4-4380-42C9-816D-57B0893A87B6}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A888DBF4-4380-42C9-816D-57B0893A87B6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A888DBF4-4380-42C9-816D-57B0893A87B6}.Debug|Win32.Build.0 = Debug|Win32
+		{A888DBF4-4380-42C9-816D-57B0893A87B6}.Release|Win32.ActiveCfg = Release|Win32
+		{A888DBF4-4380-42C9-816D-57B0893A87B6}.Release|Win32.Build.0 = Release|Win32
+		{F6902B97-DA31-4A98-9888-D8134255ACBC}.Debug|Win32.ActiveCfg = Debug|x86
+		{F6902B97-DA31-4A98-9888-D8134255ACBC}.Debug|Win32.Build.0 = Debug|x86
+		{F6902B97-DA31-4A98-9888-D8134255ACBC}.Release|Win32.ActiveCfg = Release|x86
+		{F6902B97-DA31-4A98-9888-D8134255ACBC}.Release|Win32.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
