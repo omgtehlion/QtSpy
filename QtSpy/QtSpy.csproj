@@ -200,6 +200,7 @@
     <Compile Include="UI\MyTreeModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Winapi.cs" />
     <EmbeddedResource Include="Aga.Controls\Properties\Resources.resx" />
     <EmbeddedResource Include="Aga.Controls\Tree\TreeViewAdv.resx" />
     <EmbeddedResource Include="UI\FormMain.resx">
@@ -231,10 +232,6 @@
     <Compile Include="QtProcess.cs" />
     <Compile Include="UI\UiTools.cs" />
     <Compile Include="UI\WidgetAttributes.cs" />
-    <Compile Include="Winapi\Methods.cs" />
-    <Compile Include="Winapi\Winapi.cs" />
-    <Compile Include="Winapi\Window.cs" />
-    <Compile Include="Winapi\WindowBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bitmap1.png" />

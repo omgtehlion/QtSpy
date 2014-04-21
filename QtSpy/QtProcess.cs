@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Web.Script.Serialization;
-using Winapi;
 
 namespace QtSpy
 {
@@ -21,8 +20,8 @@ namespace QtSpy
         JavaScriptSerializer Json = new JavaScriptSerializer();
 
 
-        static readonly HashSet<int> nonQtProcesses = new HashSet<int>();
-        static readonly Dictionary<int, QtProcess> qtProcesses = new Dictionary<int, QtProcess>();
+        static readonly HashSet<uint> nonQtProcesses = new HashSet<uint>();
+        static readonly Dictionary<uint, QtProcess> qtProcesses = new Dictionary<uint, QtProcess>();
 
         const string Dumplib = "dumplib.dll";
 
@@ -81,9 +80,10 @@ namespace QtSpy
             return (Dictionary<string, object>)Json.DeserializeObject(s);
         }
 
-        public static QtProcess FromWindow(WindowBase w)
+        public static QtProcess FromWindow(IntPtr w)
         {
-            var pid = w.WindowThreadProcessId;
+            uint pid;
+            Winapi.GetWindowThreadProcessId(w, out pid);
 
             if (nonQtProcesses.Contains(pid))
                 return null;
@@ -92,7 +92,7 @@ namespace QtSpy
                 return qtProcesses[pid];
 
             try {
-                var proc = Process.GetProcessById(pid);
+                var proc = Process.GetProcessById((int)pid);
                 foreach (var m in proc.Modules.Cast<ProcessModule>().Where(
                     m => m.ModuleName.Equals("QtGui4.dll", StringComparison.InvariantCultureIgnoreCase))) {
                     var qproc = new QtProcess {

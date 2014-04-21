@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
-using Winapi;
 using JsObj = System.Collections.Generic.Dictionary<string, object>;
 
 namespace QtSpy.UI
@@ -13,7 +12,7 @@ namespace QtSpy.UI
     public partial class FormMain : Form
     {
         const string TitlePrefix = "QtSpy";
-        static readonly int CurrentPid = System.Diagnostics.Process.GetCurrentProcess().Id;
+        static readonly uint CurrentPid = (uint)System.Diagnostics.Process.GetCurrentProcess().Id;
         static Cursor Crosshair = new Cursor(new MemoryStream(Properties.Resources.cursor1));
 
         bool ShowHidden = false;
@@ -33,9 +32,9 @@ namespace QtSpy.UI
         {
             if (LastWindow != IntPtr.Zero) {
                 if (LastRect.IsEmpty)
-                    UiTools.InvertWindow(new Window(LastWindow), ShowHidden);
+                    UiTools.InvertWindow(LastWindow, ShowHidden);
                 else
-                    UiTools.InvertScreenRect(new Window(LastWindow), LastRect);
+                    UiTools.InvertScreenRect(LastWindow, LastRect);
             }
         }
 
@@ -57,24 +56,25 @@ namespace QtSpy.UI
         {
             if (!Searching)
                 return;
-            var wid = Methods.WindowFromPoint(Cursor.Position);
-            var w = new Window(wid);
+            var w = Winapi.WindowFromPoint(Cursor.Position);
 
-            if (w.WindowThreadProcessId == CurrentPid)
+            uint pid;
+            Winapi.GetWindowThreadProcessId(w, out pid);
+            if (pid == CurrentPid)
                 return;
 
             var json = GetWidgetData(w, false);
             var rect = GetWidgetRect(json);
 
-            if (LastWindow != wid || LastRect != rect) {
+            if (LastWindow != w || LastRect != rect) {
                 // unhilite old
                 InvertLast();
-                LastWindow = wid;
+                LastWindow = w;
                 LastRect = rect;
                 // hilite new
                 InvertLast();
                 // also update window title
-                Text = TitlePrefix + string.Format(" [{0:X8}, {1}, {2}]", wid, json.TryGet<string>("class"), json.TryGet<string>("text"));
+                Text = TitlePrefix + string.Format(" [{0:X8}, {1}, {2}]", w, json.TryGet<string>("class"), json.TryGet<string>("text"));
             }
         }
 
@@ -87,7 +87,7 @@ namespace QtSpy.UI
 
             dataGridParams.Rows.Clear();
 
-            var json = GetWidgetData(new Window(LastWindow), true);
+            var json = GetWidgetData(LastWindow, true);
             if (json != null) {
                 MyNode tagged;
                 var root = QtObject.ParseJson<MyNode>(json, out tagged);
@@ -105,7 +105,7 @@ namespace QtSpy.UI
             picturePicker.Image = Properties.Resources.bitmap1;
         }
 
-        private JsObj GetWidgetData(Window w, bool getTree)
+        private JsObj GetWidgetData(IntPtr w, bool getTree)
         {
             LastProcess = QtProcess.FromWindow(w);
             if (LastProcess == null)
@@ -113,7 +113,7 @@ namespace QtSpy.UI
             var pt = Cursor.Position;
             return LastProcess.ExecCommand(new {
                 cmd = getTree ? "treeAtPoint" : "atPoint",
-                hWnd = (int)w.Handle,
+                hWnd = (int)w,
                 x = pt.X,
                 y = pt.Y,
                 onlyWidgets = checkOnlyWidgets.Checked

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using Winapi;
 
 namespace QtSpy.UI
 {
@@ -10,28 +9,27 @@ namespace QtSpy.UI
         const int INVERT_BORDER = 3;
 
         [DllImport("user32.dll")]
-        static extern bool InvertRect(IntPtr hDC, [In] ref RECT lprc);
+        static extern bool InvertRect(IntPtr hDC, [In] ref Winapi.RECT lprc);
 
         [DllImport("user32.dll")]
-        static extern bool OffsetRect(ref RECT lprc, int dx, int dy);
+        static extern bool OffsetRect(ref Winapi.RECT lprc, int dx, int dy);
 
         [DllImport("user32.dll")]
-        static extern bool SetRect(out RECT lprc, int xLeft, int yTop, int xRight, int yBottom);
+        static extern bool SetRect(out Winapi.RECT lprc, int xLeft, int yTop, int xRight, int yBottom);
 
-        public static void InvertWindow(WindowBase hwnd, bool fShowHidden)
+        public static void InvertWindow(IntPtr hwnd, bool fShowHidden)
         {
-            RECT rect2;
+            Winapi.RECT rect2;
 
             var border = INVERT_BORDER;
 
             //window rectangle (screen coords)
-            RECT rect = hwnd.Rect;
+            var rect = Winapi.GetWindowRect(hwnd);
 
             //client rectangle (screen coords)
-            RECT rectc = hwnd.ClientRect;
+            var rectc = Winapi.GetClientRect(hwnd);
 
-            POINT tmp = rectc.Location;
-            Methods.ClientToScreen(hwnd.Handle, ref tmp);
+            var tmp = Winapi.ClientToScreen(hwnd, rectc.Location);
             rectc.Left = tmp.X;
             rectc.Top = tmp.Y;
 
@@ -47,9 +45,9 @@ namespace QtSpy.UI
                 border = 1;
 
             if (fShowHidden)
-                hwnd = new Window(IntPtr.Zero);
+                hwnd = IntPtr.Zero;
 
-            var hdc = Methods.GetWindowDC(hwnd.Handle);
+            var hdc = Winapi.GetWindowDC(hwnd);
 
             //top edge
             SetRect(out rect2, 0, 0, rect.Right, border);
@@ -76,33 +74,33 @@ namespace QtSpy.UI
             InvertRect(hdc, ref rect2);
 
 
-            Methods.ReleaseDC(hwnd.Handle, hdc);
+            Winapi.ReleaseDC(hwnd, hdc);
         }
 
-        public static void InvertScreenRect(WindowBase hwnd, Rectangle rect)
+        public static void InvertScreenRect(IntPtr hwnd, Rectangle rect)
         {
-            RECT rect2;
+            Winapi.RECT rect2;
 
-            var loc = hwnd.Rect.Location;
+            var loc = Winapi.GetWindowRect(hwnd).Location;
             rect.Offset(-loc.X, -loc.Y);
-            var hdc = Methods.GetWindowDC(hwnd.Handle);
+            var hdc = Winapi.GetWindowDC(hwnd);
             //top edge
-            rect2 = new RECT(rect.Left, rect.Top, rect.Right, rect.Top + INVERT_BORDER);
+            rect2 = new Winapi.RECT(rect.Left, rect.Top, rect.Right, rect.Top + INVERT_BORDER);
             InvertRect(hdc, ref rect2);
 
             //left edge
-            rect2 = new RECT(rect.Left, rect.Top + INVERT_BORDER, rect.Left + INVERT_BORDER, rect.Bottom - INVERT_BORDER);
+            rect2 = new Winapi.RECT(rect.Left, rect.Top + INVERT_BORDER, rect.Left + INVERT_BORDER, rect.Bottom - INVERT_BORDER);
             InvertRect(hdc, ref rect2);
 
             //right edge
-            rect2 = new RECT(rect.Right - INVERT_BORDER, rect.Top + INVERT_BORDER, rect.Right, rect.Bottom - INVERT_BORDER);
+            rect2 = new Winapi.RECT(rect.Right - INVERT_BORDER, rect.Top + INVERT_BORDER, rect.Right, rect.Bottom - INVERT_BORDER);
             InvertRect(hdc, ref rect2);
 
             //bottom edge
-            rect2 = new RECT(rect.Left, rect.Bottom - INVERT_BORDER, rect.Right, rect.Bottom);
+            rect2 = new Winapi.RECT(rect.Left, rect.Bottom - INVERT_BORDER, rect.Right, rect.Bottom);
             InvertRect(hdc, ref rect2);
 
-            Methods.ReleaseDC(hwnd.Handle, hdc);
+            Winapi.ReleaseDC(hwnd, hdc);
         }
     }
 }
