@@ -1,6 +1,6 @@
 ﻿#include "InjectTools.h"
 
-#pragma comment(lib, "LDE64.lib")
+#pragma comment(lib, __FILE__"/../LDE64.lib")
 // imported from LDE:
 int __stdcall LDE(void*, int);
 
@@ -105,11 +105,9 @@ static PBYTE UseScratchpad(int size)
 // Public API implementation
 //
 
-DWORD InjectRemoteThread(DWORD processId, LPTHREAD_START_ROUTINE callback, DWORD callbackSize, LPVOID data, DWORD dataSize, DWORD* returnCode)
+DWORD InjectRemoteThread(HANDLE hProcess, LPTHREAD_START_ROUTINE callback, DWORD callbackSize, LPVOID data, DWORD dataSize, DWORD* returnCode)
 {
     // based on InjectThread.c work by J Brown (2002)
-    HANDLE hProcess; //handle to the remote process
-
     HANDLE hRemoteThread = 0; //handle to the injected thread
     DWORD  dwRemoteThreadId = 0; //ID of the injected thread
 
@@ -124,11 +122,6 @@ DWORD InjectRemoteThread(DWORD processId, LPTHREAD_START_ROUTINE callback, DWORD
 
     // Total size of all memory copied into remote process
     const int cbMemSize = callbackSize + dataSize + 3;
-
-    hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE,
-        FALSE, processId);
-    if (hProcess == 0)
-        return FALSE;
 
     pdwRemoteCode = VirtualAllocEx(hProcess, 0, cbMemSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     if (pdwRemoteCode == 0)
@@ -160,33 +153,32 @@ DWORD InjectRemoteThread(DWORD processId, LPTHREAD_START_ROUTINE callback, DWORD
 
     // Free the memory in the remote process
     VirtualFreeEx(hProcess, pdwRemoteCode, 0, MEM_RELEASE);
-    CloseHandle(hProcess);
 
     return TRUE;
 }
 
-DWORD InjectDll(DWORD processId, WCHAR* dllPath)
+DWORD InjectDll(HANDLE hProcess, WCHAR* dllPath)
 {
-    return InjectDllAndCall(processId, dllPath, 0);
+    return InjectDllAndCall(hProcess, dllPath, 0);
 }
 
-DWORD InjectDllAndCall(DWORD processId, WCHAR* dllPath, DWORD callbackOffset)
+DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset)
 {
     LoadLib_data data;
     (FARPROC) data.fnLoadLibraryW = GetProcAddress(GetModuleHandleW(L"kernel32"), "LoadLibraryW");
     (FARPROC) data.fnFreeLibrary = GetProcAddress(GetModuleHandleW(L"kernel32"), "FreeLibrary");
     MoveMemory(data.libName, dllPath, MAX_PATH * sizeof(WCHAR));
     data.callbackOffset = callbackOffset;
-    return InjectRemoteThread(processId, LoadLib, (DWORD) AfterLoadLib - (DWORD) LoadLib, &data, sizeof(data), NULL);
+    return InjectRemoteThread(hProcess, LoadLib, (DWORD) AfterLoadLib - (DWORD) LoadLib, &data, sizeof(data), NULL);
 }
 
-DWORD InjectSelf(DWORD processId, LPTHREAD_START_ROUTINE callback)
+DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback)
 {
     HMODULE hMod;
     WCHAR dllPath[MAX_PATH];
     GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR) callback, &hMod);
     GetModuleFileNameW(hMod, dllPath, MAX_PATH);
-    return InjectDllAndCall(processId, dllPath, (DWORD) callback - (DWORD) hMod);
+    return InjectDllAndCall(hProcess, dllPath, (DWORD) callback - (DWORD) hMod);
 }
 
 DWORD InjectDetour(LPVOID detour, LPVOID detoured, LPVOID* original)
@@ -219,4 +211,10 @@ DWORD InjectDetour(LPVOID detour, LPVOID detoured, LPVOID* original)
 
     *original = (LPVOID) moved;
     return 0;
+}
+
+HANDLE OpenProcessForInject(DWORD processId)
+{
+    return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE,
+        FALSE, processId);
 }

@@ -1,7 +1,9 @@
 ﻿#ifndef ___InjectTools_h__
 #define ___InjectTools_h__
 
+#ifndef STRICT
 #define STRICT
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
@@ -9,15 +11,17 @@
 extern "C" {
 #endif
 
-    DWORD InjectRemoteThread(DWORD processId, LPTHREAD_START_ROUTINE callback, DWORD callbackSize, LPVOID data, DWORD dataSize, DWORD* returnCode);
+    DWORD InjectRemoteThread(HANDLE hProcess, LPTHREAD_START_ROUTINE callback, DWORD callbackSize, LPVOID data, DWORD dataSize, DWORD* returnCode);
 
-    DWORD InjectDll(DWORD processId, WCHAR* dllPath);
+    DWORD InjectDll(HANDLE hProcess, WCHAR* dllPath);
 
-    DWORD InjectDllAndCall(DWORD processId, WCHAR* dllPath, DWORD callbackOffset);
+    DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset);
 
-    DWORD InjectSelf(DWORD processId, LPTHREAD_START_ROUTINE callback);
+    DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback);
 
-    DWORD InjectDetour(LPVOID detour, LPVOID detoured, LPVOID* original);
+    DWORD InjectDetour(HANDLE hProcess, LPVOID detoured, LPVOID* original);
+
+    HANDLE OpenProcessForInject(DWORD processId);
 
 #ifdef __cplusplus
 }
