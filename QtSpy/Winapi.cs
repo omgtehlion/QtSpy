@@ -55,7 +55,7 @@ Revision History:
                     + MakeKeyLParam
                     + PostKeyStroke
                     + PostKeyChar
- * 2014.04.10:  Added
+ * 2014.04.22:  Added
                     WindowFromPoint
  */
 
