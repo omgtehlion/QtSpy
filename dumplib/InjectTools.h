@@ -15,11 +15,13 @@ extern "C" {
 
     DWORD InjectDll(HANDLE hProcess, WCHAR* dllPath);
 
-    DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset);
+    DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset, LPVOID userData, size_t userDataSize);
 
-    DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback);
+    DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback, LPVOID userData, size_t userDataSize);
 
     DWORD InjectDetour(HANDLE hProcess, LPVOID detoured, LPVOID* original);
+
+    DWORD UninjectDetour(LPVOID detoured, LPVOID original);
 
     HANDLE OpenProcessForInject(DWORD processId);
 

@@ -9,10 +9,12 @@ typedef struct {
     // called APIs
     HMODULE(WINAPI *fnLoadLibraryW) (LPCWSTR lpLibFileName);
     BOOL(WINAPI *fnFreeLibrary) (HMODULE hMod);
+    //int(WINAPI *fnMessageBoxA) (HWND hWnd, LPCSTR lpText, LPCSTR lpCaption, UINT uType);
     // path to injected dll
     WCHAR libName[MAX_PATH];
     // offset of the callback inside dll, or 0
     DWORD callbackOffset;
+    BYTE userPayload[];
 } LoadLib_data;
 
 // we need to disable all runtime checks for injected functions
@@ -33,7 +35,7 @@ static DWORD WINAPI LoadLib(void* pParam)
         return (DWORD) hMod;
     }
     PTHREAD_START_ROUTINE callback = (void*) ((DWORD) hMod + data->callbackOffset);
-    DWORD result = callback(NULL);
+    DWORD result = callback(data->userPayload);
     // cleanup
     data->fnFreeLibrary(hMod);
     return result;
@@ -159,26 +161,35 @@ DWORD InjectRemoteThread(HANDLE hProcess, LPTHREAD_START_ROUTINE callback, DWORD
 
 DWORD InjectDll(HANDLE hProcess, WCHAR* dllPath)
 {
-    return InjectDllAndCall(hProcess, dllPath, 0);
+    return InjectDllAndCall(hProcess, dllPath, 0, NULL, 0);
 }
 
-DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset)
+DWORD InjectDllAndCall(HANDLE hProcess, WCHAR* dllPath, DWORD callbackOffset, LPVOID userData, size_t userDataSize)
 {
-    LoadLib_data data;
-    (FARPROC) data.fnLoadLibraryW = GetProcAddress(GetModuleHandleW(L"kernel32"), "LoadLibraryW");
-    (FARPROC) data.fnFreeLibrary = GetProcAddress(GetModuleHandleW(L"kernel32"), "FreeLibrary");
-    MoveMemory(data.libName, dllPath, MAX_PATH * sizeof(WCHAR));
-    data.callbackOffset = callbackOffset;
-    return InjectRemoteThread(hProcess, LoadLib, (DWORD) AfterLoadLib - (DWORD) LoadLib, &data, sizeof(data), NULL);
+    LoadLib_data* data;
+    size_t allocated;
+    if (!userData)
+        userDataSize = 0;
+    allocated = (sizeof(LoadLib_data)) + userDataSize;
+    data = (LoadLib_data*) _alloca(allocated);
+    (FARPROC) data->fnLoadLibraryW = GetProcAddress(GetModuleHandleW(L"kernel32"), "LoadLibraryW");
+    (FARPROC) data->fnFreeLibrary = GetProcAddress(GetModuleHandleW(L"kernel32"), "FreeLibrary");
+    //(FARPROC) data->fnMessageBoxA = GetProcAddress(GetModuleHandleW(L"user32"), "MessageBoxA");
+    MoveMemory(data->libName, dllPath, MAX_PATH * sizeof(WCHAR));
+    data->callbackOffset = callbackOffset;
+    if (userDataSize)
+        MoveMemory(data->userPayload, userData, userDataSize);
+    return InjectRemoteThread(hProcess, LoadLib, (DWORD) AfterLoadLib - (DWORD) LoadLib, data, allocated, NULL);
+    // TODO: copy back to userData
 }
 
-DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback)
+DWORD InjectSelf(HANDLE hProcess, LPTHREAD_START_ROUTINE callback, LPVOID userData, size_t userDataSize)
 {
     HMODULE hMod;
     WCHAR dllPath[MAX_PATH];
     GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCWSTR) callback, &hMod);
     GetModuleFileNameW(hMod, dllPath, MAX_PATH);
-    return InjectDllAndCall(hProcess, dllPath, (DWORD) callback - (DWORD) hMod);
+    return InjectDllAndCall(hProcess, dllPath, (DWORD) callback - (DWORD) hMod, userData, userDataSize);
 }
 
 DWORD InjectDetour(LPVOID detour, LPVOID detoured, LPVOID* original)
@@ -210,11 +221,38 @@ DWORD InjectDetour(LPVOID detour, LPVOID detoured, LPVOID* original)
         return 4;
 
     *original = (LPVOID) moved;
+
+    return 0;
+}
+
+DWORD UninjectDetour(LPVOID detoured, LPVOID original)
+{
+    const int maxDetourSize = 64; // just in case
+    int movedSz;
+    DWORD oldProtect, ignored; // saved memprotect
+    HANDLE hProcess = GetCurrentProcess(); // used by VirtualProtect
+
+    // allow us to write on this page
+    if (!FlushInstructionCache(hProcess, detoured, maxDetourSize))
+        return 1;
+    if (!VirtualProtect(detoured, maxDetourSize, PAGE_EXECUTE_READWRITE, &oldProtect))
+        return 2;
+
+    // move prologue to the scratchpad
+    movedSz = MoveCode(detoured, original, JMP_SIZE);
+
+    // restore page protection back
+    if (!FlushInstructionCache(hProcess, detoured, maxDetourSize))
+        return 3;
+    if (!VirtualProtect(detoured, maxDetourSize, oldProtect, &ignored))
+        return 4;
+
     return 0;
 }
 
 HANDLE OpenProcessForInject(DWORD processId)
 {
-    return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE,
+    return OpenProcess(PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION | PROCESS_VM_OPERATION |
+        PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_DUP_HANDLE,
         FALSE, processId);
 }

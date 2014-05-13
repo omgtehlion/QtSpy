@@ -19,7 +19,7 @@ extern "C" {
     __declspec(dllexport) DWORD WINAPI InjectInto(DWORD pid)
     {
         auto hProcess = ::OpenProcessForInject(pid);
-        auto result = ::InjectSelf(hProcess, Injected);
+        auto result = ::InjectSelf(hProcess, Injected, nullptr, 0);
         if (hProcess)
             ::CloseHandle(hProcess);
         return result;
