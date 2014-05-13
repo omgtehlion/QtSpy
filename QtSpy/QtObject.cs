@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 
@@ -33,6 +34,7 @@ namespace QtSpy
 
         protected WeakReference parent = new WeakReference(null);
         public T Parent { get { return parent.IsAlive ? parent.Target as T : null; } }
+        public QtObject<T> ParentObj { get { return Parent as QtObject<T>; } }
 
         public QtObject()
         {
@@ -84,7 +86,7 @@ namespace QtSpy
                 result.Append(title.ToLiteral());
             }
 
-            var text = Json.TryGet<string>("text") ?? Json.TryGet<string>("plainText");
+            var text = Text;
             if (text != null) {
                 result.Append(", text=");
                 result.Append(text.ToLiteral());
@@ -98,12 +100,55 @@ namespace QtSpy
             return result.ToString();
         }
 
+        public string Text
+        {
+            get { return Json.TryGet<string>("text") ?? Json.TryGet<string>("plainText"); }
+        }
+
         public string[] GetSuperClasses()
         {
             var super = Json.TryGet<object[]>("super");
             if (super == null)
                 return new string[0];
             return super.Cast<string>().ToArray();
+        }
+
+        public Point GetClientOffset()
+        {
+            var result = new Point();
+            var node = this;
+            while (node != null && node.Parent != null) {
+                result.Offset(node.Bounds.Location);
+                node = node.ParentObj;
+            }
+            return result;
+        }
+
+        public Rectangle GetClientRect()
+        {
+            return new Rectangle(GetClientOffset(), Bounds.Size);
+        }
+
+        public Rectangle Bounds
+        {
+            get
+            {
+                var bounds = Json.TryGet<Dictionary<string, object>>("bounds");
+                if (bounds != null)
+                    return new Rectangle((int)bounds["x"], (int)bounds["y"], (int)bounds["w"], (int)bounds["h"]);
+                return Rectangle.Empty;
+            }
+        }
+
+        public Point ScreenOffset
+        {
+            get
+            {
+                var offset = Json.TryGet<Dictionary<string, object>>("screenOffset");
+                if (offset != null)
+                    return new Point((int)offset["x"], (int)offset["y"]);
+                return new Point();
+            }
         }
     }
 }
