@@ -10,6 +10,7 @@ public:
             auto dtorFake = &ObjectRepo::QObject_dtor;
             ::InjectDetour((LPVOID&) dtorFake, dtorPtr, (LPVOID*) &Real_QObject_dtor);
         }
+        ::InitializeCriticalSection(&syncRoot);
     }
 
     bool IsAlive(const QObject& obj)
@@ -19,7 +20,6 @@ public:
 
     void Remove(const QObject& obj)
     {
-        //OutputDebugStringW(L"QObject::~QObject()\n");
     }
 
     void Add(const QObject& obj)
@@ -37,16 +37,35 @@ public:
         instance = new ObjectRepo();
     }
 
+    void Lock()
+    {
+        ::EnterCriticalSection(&syncRoot);
+    }
+
+    void Unlock()
+    {
+        ::LeaveCriticalSection(&syncRoot);
+    }
+
 private:
+    CRITICAL_SECTION syncRoot;
+
     static ObjectRepo* instance;
+
     static void(__thiscall *Real_QObject_dtor)(QObject* this_);
+
     void QObject_dtor()
     {
         // WARNING: `this` points to QObject!
         auto obj = reinterpret_cast<QObject*>(this);
-        if (instance)
+        if (instance != nullptr && obj->isWidgetType()) {
+            instance->Lock();
             instance->Remove(*obj);
-        Real_QObject_dtor(obj);
+            Real_QObject_dtor(obj);
+            instance->Unlock();
+        } else {
+            Real_QObject_dtor(obj);
+        }
     }
 }; // class ObjectRepo
 
