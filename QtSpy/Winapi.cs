@@ -55,8 +55,10 @@ Revision History:
                     + MakeKeyLParam
                     + PostKeyStroke
                     + PostKeyChar
- * 2014.04.22:  Added
+ * 2014.04.10:  Added
                     WindowFromPoint
+ * 2014.04.28:  Added
+                    BITMAPINFOHEADER
  */
 
 using System;
@@ -449,6 +451,16 @@ public static class Winapi
         WAIT_OBJECT_0 = 0x00000000,
         WAIT_TIMEOUT = 0x00000102,
         WAIT_FAILED = 0xFFFFFFFF,
+    }
+
+    public enum BitmapCompressionMode : uint
+    {
+        BI_RGB = 0,
+        BI_RLE8 = 1,
+        BI_RLE4 = 2,
+        BI_BITFIELDS = 3,
+        BI_JPEG = 4,
+        BI_PNG = 5,
     }
 
     #endregion
@@ -946,6 +958,24 @@ public static class Winapi
         {
             return string.Format("({0}; {1}), ({2}×{3})", x, y, cx, cy);
         }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct BITMAPINFOHEADER
+    {
+        public uint biSize;
+        public int biWidth;
+        public int biHeight;
+        public ushort biPlanes;
+        public ushort biBitCount;
+        public BitmapCompressionMode biCompression;
+        public uint biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public uint biClrUsed;
+        public uint biClrImportant;
+
+        public static readonly int SizeOf = Marshal.SizeOf(typeof(BITMAPINFOHEADER));
     }
 
     #endregion
