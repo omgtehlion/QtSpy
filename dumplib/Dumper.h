@@ -245,12 +245,15 @@ private:
                     writer.String("error").String("No page in web view");
                 } else {
                     // evaluateJavaScript can be called only from UI thread
+                    QVariant retVal;
                     QMetaObject::invokeMethod(
                         page->currentFrame(),
                         "evaluateJavaScript",
-                        Qt::QueuedConnection,
+                        Qt::BlockingQueuedConnection,
+                        QReturnArgument<QVariant>("QVariant", retVal),
                         QArgument<QString>("QString", QString::fromUtf8(code))
                         );
+                    writer.String("data").String(retVal.toString().toUtf8().data());
                 }
             }
         }

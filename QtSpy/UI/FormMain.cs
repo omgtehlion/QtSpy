@@ -234,7 +234,8 @@ namespace QtSpy.UI
             });
             var data = json.TryGet<object[]>("data").Cast<object[]>().ToArray();
             var tsv = string.Join("\r\n", data.Select(row => string.Join("\t", row.Select(s => TsvSafe((s as string) ?? "<null>")))));
-            Clipboard.SetText(tsv);
+            if (tsv != "")
+                Clipboard.SetText(tsv);
             MessageBox.Show(this, "Content of the table has been copied to your clipboard.", "QtSpy");
         }
 
@@ -294,10 +295,10 @@ namespace QtSpy.UI
                     ptr = node.Ptr,
                     code = codeForm.Code,
                 });
-                //var data = json.TryGet<object[]>("data").Cast<object[]>().ToArray();
-                //var tsv = string.Join("\r\n", data.Select(row => string.Join("\t", row.Select(s => TsvSafe((s as string) ?? "<null>")))));
-                //Clipboard.SetText(tsv);
-                //MessageBox.Show(this, "Content of the table has been copied to your clipboard.", "QtSpy");
+                var data = json.TryGet<string>("data");
+                if (!string.IsNullOrEmpty(data))
+                    Clipboard.SetText(data);
+                //MessageBox.Show(this, "Result has been copied to your clipboard.", "QtSpy");
             }
         }
     }
