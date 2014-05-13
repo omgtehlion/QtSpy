@@ -45,6 +45,7 @@
             this.menuItemEnabled = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.menuItemDump = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuItemExecJs = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridParams)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picturePicker)).BeginInit();
@@ -198,34 +199,43 @@
             this.menuItemVisible,
             this.menuItemEnabled,
             this.toolStripMenuItem1,
-            this.menuItemDump});
+            this.menuItemDump,
+            this.menuItemExecJs});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(154, 76);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(179, 120);
             // 
             // menuItemVisible
             // 
             this.menuItemVisible.Name = "menuItemVisible";
-            this.menuItemVisible.Size = new System.Drawing.Size(153, 22);
+            this.menuItemVisible.Size = new System.Drawing.Size(178, 22);
             this.menuItemVisible.Text = "Visible";
             this.menuItemVisible.Click += new System.EventHandler(this.menuItemVisible_Click);
             // 
             // menuItemEnabled
             // 
             this.menuItemEnabled.Name = "menuItemEnabled";
-            this.menuItemEnabled.Size = new System.Drawing.Size(153, 22);
+            this.menuItemEnabled.Size = new System.Drawing.Size(178, 22);
             this.menuItemEnabled.Text = "Enabled";
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(150, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(175, 6);
             // 
             // menuItemDump
             // 
             this.menuItemDump.Name = "menuItemDump";
-            this.menuItemDump.Size = new System.Drawing.Size(153, 22);
+            this.menuItemDump.Size = new System.Drawing.Size(178, 22);
             this.menuItemDump.Text = "Dump Content";
             this.menuItemDump.Click += new System.EventHandler(this.menuItemDump_Click);
+            // 
+            // menuItemExecJs
+            // 
+            this.menuItemExecJs.Name = "menuItemExecJs";
+            this.menuItemExecJs.Size = new System.Drawing.Size(178, 22);
+            this.menuItemExecJs.Text = "Execute JavaScript...";
+            this.menuItemExecJs.Visible = false;
+            this.menuItemExecJs.Click += new System.EventHandler(this.executeJavaScriptToolStripMenuItem_Click);
             // 
             // FormMain
             // 
@@ -269,6 +279,7 @@
         private System.Windows.Forms.ToolStripMenuItem menuItemEnabled;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem menuItemDump;
+        private System.Windows.Forms.ToolStripMenuItem menuItemExecJs;
     }
 }
 

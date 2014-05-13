@@ -206,6 +206,7 @@ namespace QtSpy.UI
                 menuItemVisible.Checked = node.Visible;
                 menuItemEnabled.Enabled = false;
                 menuItemDump.Enabled = node.GetSuperClasses().Contains("QAbstractItemView");
+                menuItemExecJs.Visible = node.GetSuperClasses().Contains("QWebView");
 
                 contextMenuStrip1.Show(Cursor.Position);
             }
@@ -280,6 +281,23 @@ namespace QtSpy.UI
         {
             if (e.KeyCode == Keys.Return) {
                 treeWidgets_MouseDoubleClick(null, null);
+            }
+        }
+
+        private void executeJavaScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var codeForm = new FormCode();
+            if (codeForm.ShowDialog(this) == DialogResult.OK) {
+                var node = (MyNode)treeWidgets.SelectedNode.Tag;
+                var json = LastProcess.ExecCommand(new {
+                    cmd = "execJs",
+                    ptr = node.Ptr,
+                    code = codeForm.Code,
+                });
+                //var data = json.TryGet<object[]>("data").Cast<object[]>().ToArray();
+                //var tsv = string.Join("\r\n", data.Select(row => string.Join("\t", row.Select(s => TsvSafe((s as string) ?? "<null>")))));
+                //Clipboard.SetText(tsv);
+                //MessageBox.Show(this, "Content of the table has been copied to your clipboard.", "QtSpy");
             }
         }
     }

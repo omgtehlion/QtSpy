@@ -33,6 +33,8 @@ public:
                 setVisible(writer, doc["ptr"].GetUint(), doc["visible"].GetBool());
             } else if (IS_CMD("dumpTable")) {
                 dumpTable(writer, doc["ptr"].GetUint());
+            } else if (IS_CMD("execJs")) {
+                execJs(writer, doc["ptr"].GetUint(), doc["code"].GetString());
             } else {
                 writer.String("error").String("Unknown command");
             }
@@ -126,9 +128,25 @@ private:
         }
     }
 
+    // this crap is needed to access protected d_ptr
+    struct QObject_f : QObject
+    {
+        const QObjectData* getDPtr() { return this->d_ptr.data(); }
+    };
+
+    bool isOk(const QObject& object)
+    {
+        auto objPtr = (QObject*) &object;
+        if (objPtr != nullptr) {
+            auto objData = reinterpret_cast<QObject_f*>(objPtr)->getDPtr();
+            return objData && objData->q_ptr == objPtr;
+        }
+        return false;
+    }
+
     void dumpRecursive(MyWriter& writer, const QObject& object, const QObject& tagged, bool onlyWidgets, bool wrapObject)
     {
-        if (!onlyWidgets || object.isWidgetType()) {
+        if (isOk(object) && (!onlyWidgets || object.isWidgetType())) {
             if (wrapObject)
                 writer.StartObject();
             dumpNodeData(writer, object);
@@ -175,57 +193,99 @@ private:
 
     void dumpTreeAtPoint(MyWriter& writer, DWORD hWnd, int x, int y, bool onlyWidgets)
     {
+        ObjectRepo::Instance()->Lock();
+
         auto wnd = QWidget::find(reinterpret_cast<WId>(hWnd));
         if (!wnd) {
             writer.String("error").String("Cant find window");
-            return;
+        } else {
+            // find root
+            wnd = wnd->window();
+            auto pt = wnd->mapFromGlobal(QPoint(x, y));
+            auto tagged = wnd->childAt(pt);
+            if (!tagged)
+                tagged = wnd;
+            dumpRecursive(writer, *wnd, *tagged, onlyWidgets, false);
+            dumpPoint(writer.String("screenOffset"), wnd->mapToGlobal(QPoint(0, 0)));
         }
-        // find root
-        wnd = wnd->window();
-        auto pt = wnd->mapFromGlobal(QPoint(x, y));
-        auto tagged = wnd->childAt(pt);
-        if (!tagged)
-            tagged = wnd;
-        dumpRecursive(writer, *wnd, *tagged, onlyWidgets, false);
-        dumpPoint(writer.String("screenOffset"), wnd->mapToGlobal(QPoint(0, 0)));
+
+        ObjectRepo::Instance()->Unlock();
     }
 
     void setVisible(MyWriter& writer, DWORD ptr, bool visible)
     {
+        ObjectRepo::Instance()->Lock();
+
         auto widget = reinterpret_cast<QWidget*>(ptr);
-        if (!ObjectRepo::Instance()->IsAlive(*widget)) {
+        if (!isOk(*widget) || !ObjectRepo::Instance()->IsAlive(*widget)) {
             writer.String("error").String("Dead or unknown object");
-            return;
+        } else {
+            widget->setVisible(visible);
+            dumpNodeData(writer, *widget);
+            dumpPoint(writer.String("screenOffset"), widget->mapToGlobal(QPoint(0, 0)));
         }
-        widget->setVisible(visible);
-        dumpNodeData(writer, *widget);
-        dumpPoint(writer.String("screenOffset"), widget->mapToGlobal(QPoint(0, 0)));
+
+        ObjectRepo::Instance()->Unlock();
+    }
+
+    void execJs(MyWriter& writer, DWORD ptr, const char* code)
+    {
+        ObjectRepo::Instance()->Lock();
+
+        auto widget = reinterpret_cast<QWidget*>(ptr);
+        if (!isOk(*widget) || !ObjectRepo::Instance()->IsAlive(*widget)) {
+            writer.String("error").String("Dead or unknown object");
+        } else {
+            if (!widget->inherits("QWebView")) {
+                writer.String("error").String("Widget is not QWebView");
+            } else {
+                auto webView = reinterpret_cast<QWebView*>(widget);
+                auto page = webView->page();
+                if (!page || !page->currentFrame()) {
+                    writer.String("error").String("No page in web view");
+                } else {
+                    // evaluateJavaScript can be called only from UI thread
+                    QMetaObject::invokeMethod(
+                        page->currentFrame(),
+                        "evaluateJavaScript",
+                        Qt::QueuedConnection,
+                        QArgument<QString>("QString", QString::fromUtf8(code))
+                        );
+                }
+            }
+        }
+
+        ObjectRepo::Instance()->Unlock();
     }
 
     void dumpTable(MyWriter& writer, DWORD ptr)
     {
+        ObjectRepo::Instance()->Lock();
+
         auto widget = reinterpret_cast<QAbstractItemView*>(ptr);
-        if (!ObjectRepo::Instance()->IsAlive(*widget)) {
+        if (!isOk(*widget) || !ObjectRepo::Instance()->IsAlive(*widget)) {
             writer.String("error").String("Dead or unknown object");
-            return;
-        }
-        auto model = widget->model();
-        if (!model) {
-            writer.String("error").String("No model");
-            return;
-        }
-        int rowCount = model->rowCount();
-        int columnCount = model->columnCount();
-        writer.String("data").StartArray();
-        for (int r = 0; r < rowCount; r++) {
-            writer.StartArray();
-            for (int c = 0; c < columnCount; c++) {
-                auto data = model->data(model->index(r, c));
-                writer.String(data.toString().toUtf8().data());
+        } else {
+            auto model = widget->model();
+            if (!model) {
+                writer.String("error").String("No model");
+            } else {
+                int rowCount = model->rowCount();
+                int columnCount = model->columnCount();
+                writer.String("data").StartArray();
+                for (int r = 0; r < rowCount; r++) {
+                    writer.StartArray();
+                    for (int c = 0; c < columnCount; c++) {
+                        auto data = model->data(model->index(r, c));
+                        writer.String(data.toString().toUtf8().data());
+                    }
+                    writer.EndArray();
+                }
+                writer.EndArray();
             }
-            writer.EndArray();
         }
-        writer.EndArray();
+
+        ObjectRepo::Instance()->Unlock();
     }
 }; // class Dumper
 

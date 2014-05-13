@@ -190,6 +190,12 @@
     <Compile Include="Aga.Controls\Tree\TreeViewAdvEventArgs.cs" />
     <Compile Include="Aga.Controls\Tree\TreeViewRowDrawEventArgs.cs" />
     <Compile Include="Ext.cs" />
+    <Compile Include="FormCode.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormCode.Designer.cs">
+      <DependentUpon>FormCode.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\FormMain.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -203,6 +209,9 @@
     <Compile Include="Winapi.cs" />
     <EmbeddedResource Include="Aga.Controls\Properties\Resources.resx" />
     <EmbeddedResource Include="Aga.Controls\Tree\TreeViewAdv.resx" />
+    <EmbeddedResource Include="FormCode.resx">
+      <DependentUpon>FormCode.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="UI\FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
       <SubType>Designer</SubType>
