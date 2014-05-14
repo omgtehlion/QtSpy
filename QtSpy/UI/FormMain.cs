@@ -205,7 +205,8 @@ namespace QtSpy.UI
                 var node = (MyNode)sNode.Tag;
                 menuItemVisible.Checked = node.Visible;
                 menuItemEnabled.Enabled = false;
-                menuItemDump.Enabled = node.GetSuperClasses().Contains("QAbstractItemView");
+                var superClasses = node.GetSuperClasses();
+                menuItemDump.Enabled = superClasses.Contains("QAbstractItemView") || superClasses.Contains("QWebView");
                 menuItemExecJs.Visible = node.GetSuperClasses().Contains("QWebView");
 
                 contextMenuStrip1.Show(Cursor.Position);
@@ -228,15 +229,27 @@ namespace QtSpy.UI
         private void menuItemDump_Click(object sender, EventArgs e)
         {
             var node = (MyNode)treeWidgets.SelectedNode.Tag;
-            var json = LastProcess.ExecCommand(new {
-                cmd = "dumpTable",
-                ptr = node.Ptr,
-            });
-            var data = json.TryGet<object[]>("data").Cast<object[]>().ToArray();
-            var tsv = string.Join("\r\n", data.Select(row => string.Join("\t", row.Select(s => TsvSafe((s as string) ?? "<null>")))));
-            if (tsv != "")
-                Clipboard.SetText(tsv);
-            MessageBox.Show(this, "Content of the table has been copied to your clipboard.", "QtSpy");
+            var superClasses = node.GetSuperClasses();
+            string result = null;
+            if (superClasses.Contains("QAbstractItemView")) {
+                var json = LastProcess.ExecCommand(new {
+                    cmd = "dumpTable",
+                    ptr = node.Ptr,
+                });
+                var data = json.TryGet<object[]>("data").Cast<object[]>().ToArray();
+                result = string.Join("\r\n", data.Select(row => string.Join("\t", row.Select(s => TsvSafe((s as string) ?? "<null>")))));
+            } else if (superClasses.Contains("QWebView")) {
+                var json = LastProcess.ExecCommand(new {
+                    cmd = "execJs",
+                    ptr = node.Ptr,
+                    code = "document.documentElement.innerHTML",
+                });
+                result = json.TryGet<string>("data");
+            }
+            if (!string.IsNullOrEmpty(result)) {
+                Clipboard.SetText(result);
+                MessageBox.Show(this, "Content has been copied to your clipboard.", "QtSpy");
+            }
         }
 
         private string TsvSafe(string s)
