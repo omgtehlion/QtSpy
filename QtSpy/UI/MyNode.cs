@@ -31,6 +31,7 @@ namespace QtSpy.UI
             "QAbstractItemView",
             "QFrame",
             "QWebView",
+            "QAction",
         }.Select(k => Tuple.Create(k, (Image)(Bitmap)Properties.Resources.ResourceManager.GetObject(k))).ToList();
 
         Image icon;
