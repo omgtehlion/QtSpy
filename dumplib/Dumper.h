@@ -2,7 +2,6 @@
 #include <QtGui>
 #include <QtWebKit>
 #include "ObjectRepo.h"
-
 #include "rapidjson/document.h"
 
 class Dumper
@@ -85,6 +84,7 @@ private:
     void dumpSpecific(MyWriter& writer, const QObject& object)
     {
         auto metaObj = object.metaObject();
+
         while (metaObj) {
             auto cn = metaObj->className();
             auto dumper = dumpers[cn];
@@ -92,6 +92,13 @@ private:
                 dumper(writer, object);
             metaObj = metaObj->superClass();
         }
+
+    }
+
+    bool isActionType(const QObject *obj)
+    {
+        auto metaObj = obj->metaObject();
+        return metaObj && (QString(metaObj->className()) == QString("QAction"));
     }
 
     void dumpNodeData(MyWriter& writer, const QObject& object)
@@ -126,6 +133,14 @@ private:
 
             dumpSpecific(writer, object);
         }
+        else if (isActionType(&object)){
+            auto act = static_cast<const QAction*>(&object);
+            writer.String("text").String(act->text().toUtf8().data());
+            if (act->isVisible()){
+                writer.String("visible").Bool(act->isVisible());
+            }
+        }
+
     }
 
     // this crap is needed to access protected d_ptr
@@ -144,9 +159,10 @@ private:
         return false;
     }
 
+
     void dumpRecursive(MyWriter& writer, const QObject& object, const QObject& tagged, bool onlyWidgets, bool wrapObject)
     {
-        if (isOk(object) && (!onlyWidgets || object.isWidgetType())) {
+        if (isOk(object) && (!onlyWidgets || object.isWidgetType() || isActionType(&object))) {
             if (wrapObject)
                 writer.StartObject();
             dumpNodeData(writer, object);
@@ -155,6 +171,17 @@ private:
                 writer.String("__tagged").Bool(true);
 
             auto children = object.children();
+
+            if (object.isWidgetType()){
+                const QWidget *w = static_cast<const QWidget *>(&object);
+                auto acts = w->actions();
+                for (int i = 0; i < acts.count(); i++){
+                    if (!children.contains(acts[i])){
+                        children.push_back(acts[i]);
+                    }
+                }
+            }
+
             if (!children.isEmpty()) {
                 writer.String("__children").StartArray();
                 for (int i = 0; i < children.size(); ++i)
